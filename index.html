@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antibiotics & AMR Knowledge Check</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f0;
+            --card-bg: #ffffff;
+            --text-color: #111111;
+            --border-color: #111111;
+            --accent-green: #00ca65;
+            --accent-red: #ff4757;
+            --accent-blue: #2ed573;
+            --accent-yellow: #fffa65;
+            --font-mono: 'Courier New', Courier, monospace, system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-mono);
+            line-height: 1.5;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--border-color);
+            padding: 24px;
+        }
+
+        header {
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .meta-info {
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--text-color);
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        button.option-btn {
+            flex: 1;
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: bold;
+            background: #ffffff;
+            border: 3px solid var(--border-color);
+            box-shadow: 3px 3px 0px var(--border-color);
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.1s ease;
+        }
+
+        button.option-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--border-color);
+        }
+
+        button.option-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0px var(--border-color);
+        }
+
+        .feedback-box {
+            display: none;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            background-color: var(--bg-color);
+        }
+
+        .feedback-header {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .feedback-box.correct {
+            border-color: #000;
+            background-color: #e6ffe6;
+        }
+
+        .feedback-box.incorrect {
+            border-color: #000;
+            background-color: #ffe6e6;
+        }
+
+        .benchmarks {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+            font-size: 0.8rem;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: bold;
+            background: var(--accent-yellow);
+            border: 3px solid var(--border-color);
+            box-shadow: 3px 3px 0px var(--border-color);
+            cursor: pointer;
+            text-transform: uppercase;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--border-color);
+        }
+
+        /* Results Screen */
+        .results-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score-badge {
+            font-size: 3rem;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 24px;
+            border: 3px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--border-color);
+            margin: 20px 0;
+            background-color: var(--accent-yellow);
+        }
+
+        .result-summary {
+            text-align: left;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .restart-btn {
+            padding: 14px 28px;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: bold;
+            background: #ffffff;
+            border: 3px solid var(--border-color);
+            box-shadow: 3px 3px 0px var(--border-color);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .restart-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Antibiotics Knowledge Quiz</h1>
+        <h4>Questions adapted from DOI:10.3934/publichealth.2026033</h4>
+        <div class="meta-info">
+            <span id="question-count">Question 1 of 15</span>
+            <span id="score-tracker">Score: 0</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </header>
+
+    <main id="quiz-body">
+        <div class="question-card active" id="question-card">
+            <div class="question-text" id="question-text">Loading question...</div>
+            
+            <div class="btn-group" id="btn-group">
+                <button class="option-btn" onclick="selectAnswer(true)">YES</button>
+                <button class="option-btn" onclick="selectAnswer(false)">NO</button>
+            </div>
+
+            <div class="feedback-box" id="feedback-box">
+                <div class="feedback-header" id="feedback-header"></div>
+                <div id="feedback-reason"></div>
+                <div class="benchmarks" id="feedback-benchmarks"></div>
+            </div>
+
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+        </div>
+
+        <div class="results-screen" id="results-screen">
+            <h2>Quiz Completed!</h2>
+            <div class="score-badge" id="final-score">0 / 15</div>
+            <div class="result-summary" id="result-summary"></div>
+            <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </main>
+</div>
+
+<script>
+const quizData = [
+    {
+        q: "1. Antibiotics can cause side effects in humans, such as diarrhea.",
+        answer: true,
+        reason: "Antibiotics disrupt normal gut flora and can directly irritate the digestive tract.",
+        sources: "CDC, Mayo Clinic",
+        stats: { EU: "75%", NA: "80%", AF: "55%", LA: "60%", AS: "60%" }
+    },
+    {
+        q: "2. Antibiotics cause negative effects on the body's normal flora.",
+        answer: true,
+        reason: "Antibiotics target bacteria non-selectively, killing beneficial bacteria on skin, mucosal, and gut tissue.",
+        sources: "CDC, Mayo Clinic",
+        stats: { EU: "70%", NA: "75%", AF: "45%", LA: "50%", AS: "55%" }
+    },
+    {
+        q: "3. If someone feels better after taking antibiotics, they can stop treatment earlier.",
+        answer: false,
+        reason: "Stopping early allows partially resistant bacteria to survive, re-multiply, and trigger a relapse.",
+        sources: "WHO, CDC",
+        stats: { EU: "75%", NA: "80%", AF: "45%", LA: "50%", AS: "45%" }
+    },
+    {
+        q: "4. The use of antibiotics in animals can reduce the effectiveness of antibiotic treatment for humans.",
+        answer: true,
+        reason: "Overusing antibiotics in livestock selects for drug-resistant superbugs that spread to humans.",
+        sources: "WHO, WOAH",
+        stats: { EU: "60%", NA: "65%", AF: "40%", LA: "45%", AS: "50%" }
+    },
+    {
+        q: "5. Any viral infection with fever should be treated with antibiotics.",
+        answer: false,
+        reason: "Antibiotics work strictly against bacteria. They have zero activity against viruses, regardless of fever.",
+        sources: "CDC, WHO",
+        stats: { EU: "60%", NA: "65%", AF: "30%", LA: "35%", AS: "35%" }
+    },
+    {
+        q: "6. Antibiotics are only useful for fighting infections caused by bacteria.",
+        answer: true,
+        reason: "Antibiotics specifically target bacterial cell walls, protein synthesis, and DNA replication mechanisms.",
+        sources: "CDC, WHO",
+        stats: { EU: "50%", NA: "60%", AF: "30%", LA: "35%", AS: "35%" }
+    },
+    {
+        q: "7. Mild infections may resolve on their own without antibiotics.",
+        answer: true,
+        reason: "The immune system can naturally clear many self-limiting bacterial and viral infections.",
+        sources: "CDC, NHS",
+        stats: { EU: "65%", NA: "70%", AF: "50%", LA: "55%", AS: "55%" }
+    },
+    {
+        q: "8. Original antibiotics are more effective than generic ones.",
+        answer: false,
+        reason: "Generic antibiotics contain identical active ingredients and must satisfy identical bioequivalence standards.",
+        sources: "FDA, WHO",
+        stats: { EU: "65%", NA: "75%", AF: "40%", LA: "45%", AS: "50%" }
+    },
+    {
+        q: "9. Expensive antibiotics are more effective than cheaper ones.",
+        answer: false,
+        reason: "Clinical efficacy depends on bacterial sensitivity to the drug, not price. Inexpensive first-line drugs are often best.",
+        sources: "WHO, CDC",
+        stats: { EU: "70%", NA: "75%", AF: "45%", LA: "50%", AS: "45%" }
+    },
+    {
+        q: "10. It is not right to keep antibiotics in the cupboard to use them for future infections.",
+        answer: true,
+        reason: "Keeping leftover medication leads to improper self-medication, incorrect dosing, and antibiotic resistance.",
+        sources: "CDC, FDA",
+        stats: { EU: "70%", NA: "75%", AF: "45%", LA: "50%", AS: "50%" }
+    },
+    {
+        q: "11. Antibiotics should always be prescribed for infections caused by viruses.",
+        answer: false,
+        reason: "Viruses lack bacterial cell targets; prescribing antibiotics yields no benefit while adding toxicity risk.",
+        sources: "CDC, WHO",
+        stats: { EU: "55%", NA: "65%", AF: "30%", LA: "35%", AS: "35%" }
+    },
+    {
+        q: "12. Ear infections always require antibiotics.",
+        answer: false,
+        reason: "Many middle ear infections are viral or self-limiting; observation and pain relief are often recommended.",
+        sources: "AAP, CDC",
+        stats: { EU: "50%", NA: "55%", AF: "35%", LA: "40%", AS: "40%" }
+    },
+    {
+        q: "13. Only doctors are responsible for the correct use of antibiotics.",
+        answer: false,
+        reason: "Antibiotic stewardship requires active partnership from patients, pharmacists, agricultural workers, and policy makers.",
+        sources: "WHO, WOAH",
+        stats: { EU: "65%", NA: "70%", AF: "50%", LA: "55%", AS: "50%" }
+    },
+    {
+        q: "14. Patients should not pressure doctors to prescribe antibiotics.",
+        answer: true,
+        reason: "Patient pressure is a primary driver of unnecessary prescribing for self-limiting viral conditions.",
+        sources: "CDC, WHO",
+        stats: { EU: "70%", NA: "75%", AF: "55%", LA: "60%", AS: "60%" }
+    },
+    {
+        q: "15. Doctors should take the time to explain to their patients why they should or should not prescribe antibiotics.",
+        answer: true,
+        reason: "Clear communication improves treatment compliance, manages expectations, and curbs public misuse.",
+        sources: "WHO, CDC",
+        stats: { EU: "85%", NA: "90%", AF: "75%", LA: "80%", AS: "80%" }
+    }
+];
+
+let currentIdx = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+    answered = false;
+    const item = quizData[currentIdx];
+    
+    document.getElementById('question-count').innerText = `Question ${currentIdx + 1} of ${quizData.length}`;
+    document.getElementById('score-tracker').innerText = `Score: ${score}`;
+    document.getElementById('progress-bar').style.width = `${((currentIdx) / quizData.length) * 100}%`;
+    document.getElementById('question-text').innerText = item.q;
+    
+    document.getElementById('feedback-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+    
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    });
+}
+
+function selectAnswer(userChoice) {
+    if (answered) return;
+    answered = true;
+
+    const item = quizData[currentIdx];
+    const isCorrect = (userChoice === item.answer);
+    
+    if (isCorrect) score++;
+    document.getElementById('score-tracker').innerText = `Score: ${score}`;
+
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+    });
+
+    const feedbackBox = document.getElementById('feedback-box');
+    const feedbackHeader = document.getElementById('feedback-header');
+    const feedbackReason = document.getElementById('feedback-reason');
+    const feedbackBenchmarks = document.getElementById('feedback-benchmarks');
+
+    feedbackBox.style.display = 'block';
+    if (isCorrect) {
+        feedbackBox.className = 'feedback-box correct';
+        feedbackHeader.innerText = 'Correct!';
+    } else {
+        feedbackBox.className = 'feedback-box incorrect';
+        feedbackHeader.innerText = `Incorrect (Correct Answer: ${item.answer ? 'YES' : 'NO'})`;
+    }
+
+    feedbackReason.innerHTML = `<strong>Why?</strong> ${item.reason} <em>[Sources: ${item.sources}]</em>`;
+    
+    feedbackBenchmarks.innerHTML = `Note: LLM generated explanations. Talk to your HCP. Not medical advice.`;
+
+    document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < quizData.length) {
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+    document.getElementById('question-card').style.display = 'none';
+    document.getElementById('progress-bar').style.width = '100%';
+    
+    const resultsScreen = document.getElementById('results-screen');
+    resultsScreen.style.display = 'block';
+    
+    document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+    
+    let summaryText = "";
+    if (score >= 13) {
+        summaryText = "<strong>Excellent Knowledge!</strong> You have a strong understanding of antimicrobial stewardship, mechanism of action, and responsible antibiotic usage.";
+    } else if (score >= 9) {
+        summaryText = "<strong>Moderate Knowledge.</strong> You understand the basics, but cleared up some key misconceptions regarding viral infections or treatment completion rules.";
+    } else {
+        summaryText = "<strong>High Misconception Risk.</strong> Your answers reflect common public misconceptions regarding antibiotic use. Take a moment to review the key points above to help prevent antimicrobial resistance.";
+    }
+    
+    document.getElementById('result-summary').innerHTML = summaryText;
+}
+
+function restartQuiz() {
+    currentIdx = 0;
+    score = 0;
+    document.getElementById('results-screen').style.display = 'none';
+    document.getElementById('question-card').style.display = 'block';
+    loadQuestion();
+}
+
+// Initializing
+loadQuestion();
+</script>
+<p>
+
+</p>
+</body>
+</html>
